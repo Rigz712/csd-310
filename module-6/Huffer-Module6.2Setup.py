@@ -1,36 +1,51 @@
 # Name, Date, Assignment Name/Number: Joe Huffer, 4/21/2024, Module 6.2 'Setup'
 # Citation: None 
 
-import mysql.connector                                                                  # Import the MySQL connector
-from mysql.connector import Error                                                       # Import the Error class from the MySQL connector
+import mysql.connector
 
-# Configuration for MySQL connection
-config = {
-    "user": "movies_user",                                                              # The username for the MySQL account
-    "password": "popcorn",                                                              # The password for the MySQL account
-    "host": "127.0.0.1",                                                                # The host to connect to the MySQL server
-    "database": "movies",                                                               # The database to connect to
-    "raise_on_warnings": True                                                           # Raise an exception on warnings
-}
+def main():
+    # Configuration settings for MySQL connection
+    config = {
+        "user": "movies_user",  # The username for the MySQL account
+        "password": "popcorn",  # The password for the MySQL account
+        "host": "127.0.0.1",  # The host to connect to the MySQL server
+        "database": "movies",  # The database to connect to
+        "raise_on_warnings": True  # Raise an exception on warnings
+    }
 
-# Attempt to connect to the MySQL database using the configuration above
-try:    
-    db = mysql.connector.connect(**config)                                              # Connect to the MySQL server using the configuration
-    print("\nDatabase user {} connected to MySQL on host {} with database {}".format(   # Print a message to confirm the connection
-        config["user"], config["host"], config["database"]                              # Print the username, host, and database name
-    ))
-    input("\nPress any key to continue...")                                             # Wait for user input before continuing
+    # Establish a connection to the MySQL database using the configuration
+    db = mysql.connector.connect(**config)
     
-# Handle errors during connection attempt
-except mysql.connector.Error as err:                                                    # Catch any errors that occur
-    if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:                   # Check if the error is due to invalid credentials
-        print("The supplied username or password are invalid")                          # Print an error message
-    elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:                        # Check if the error is due to a missing database
-        print("The specified database does not exist")                                  # Print an error message
-    else:                                                                               # If the error is not one of the above
-        print(err)                                                                      # Print the error message
+    # Create a cursor object using the connection
+    cursor = db.cursor()
 
-# Ensure the database connection is closed after the operation is complete
-finally:                                                                                # Code to run after the try block, regardless of the outcome
-    if db.is_connected():                                                               # Check if the database connection is still open
-        db.close()                                                                      # Close the database connection   
+    # Query 1: Select all fields from the studio table
+    print("\n-- DISPLAYING STUDIO RECORDS --")
+    cursor.execute("SELECT * FROM studio")
+    for studio in cursor.fetchall():
+        print(f"Studio ID: {studio[0]}, Studio Name: {studio[1]}")
+
+    # Query 2: Select all fields from the genre table
+    print("\n-- DISPLAYING GENRE RECORDS --")
+    cursor.execute("SELECT * FROM genre")
+    for genre in cursor.fetchall():
+        print(f"Genre ID: {genre[0]}, Genre Name: {genre[1]}")
+
+    # Query 3: Select movie names with a runtime less than two hours
+    print("\n-- DISPLAYING SHORT FILM RECORDS --")
+    cursor.execute("SELECT film_name FROM film WHERE film_runtime < 120")
+    for film in cursor.fetchall():
+        print(f"Film Name: {film[0]}")
+
+    # Query 4: Get a list of film names and directors grouped by director
+    print("\n-- DISPLAYING DIRECTOR RECORDS IN ORDER --")
+    cursor.execute("SELECT film_director, GROUP_CONCAT(film_name) FROM film GROUP BY film_director")
+    for record in cursor.fetchall():
+        print(f"Director: {record[0]}, Films: {record[1]}")
+
+    # Close the cursor and the connection
+    cursor.close()
+    db.close()
+
+if __name__ == "__main__":
+    main()                                                                # Close the database connection   
