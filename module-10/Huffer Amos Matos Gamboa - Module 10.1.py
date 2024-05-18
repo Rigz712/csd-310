@@ -1,7 +1,7 @@
 import mysql.connector
 from mysql.connector import errorcode
 
-# Alfa team group project 5/3/2024 Milestone 2 Assignment 10.1
+# Alpha team group project 5/3/2024 Milestone 2 Assignment 10.1
 config = {
     "user": "adventures_user",
     "password": "outland",
